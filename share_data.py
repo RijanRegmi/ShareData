@@ -89,7 +89,7 @@ class sharedata:
         status = self.Combo_status.get()
         qty = self.txtqty.get()
         amount = self.txtamount.get()
-        self.chart()
+        # self.chart()
         
 
         if date == "" or symbol == "" or name == "" or status == "" or qty == "" or amount == "" :
@@ -392,6 +392,7 @@ class sharedata:
         self.btnlogout = Button(left_Frame, text="Logout", command=self.fp, height=50, font=('arial', 15, 'bold'), bg="#9FA8B2", fg="#FFFFFF", width=120, cursor="hand2")
         self.btnlogout.place(x=20, y=220, width=130, height=44)
         self.share()
+
 
 
 # =========================================================================share_data=========================================================================
@@ -700,26 +701,27 @@ class sharedata:
         # ====================================================================================SHARE===========================================================================================
 
     def share(self):
+        # self.chart()
 
         self.date = StringVar()
         self.hari = DoubleVar()
         self.rijan = DoubleVar()
         self.anita = DoubleVar()
         self.rishav = DoubleVar()
-        self.totalamount = DoubleVar()
+        self.total_value = DoubleVar()
         self.root = root
-        self.chart()
+        
 
-        self.fetch_data()
-        Main_Frame = Frame(self.root, bd=5, relief=GROOVE, bg="#9FA8B2")
+        Main_Frame = Frame(self.root, bd=5, bg="white")
         Main_Frame.place(x=180, y=0, width=1186, height=768)
+
 
         #Image1
         img2 = Image.open("image/RJNnobg.png")
         img2 = img2.resize((80, 80))
         self.photoimg2 = ImageTk.PhotoImage(img2)
 
-        lbl_img2 = Label(Main_Frame, image=self.photoimg2, bg="#9FA8B2")
+        lbl_img2 = Label(Main_Frame, image=self.photoimg2, bg="white")
         lbl_img2.place(x=10, y=10, width=80, height=80)
 
         # ======================Variables======================
@@ -731,38 +733,40 @@ class sharedata:
         self.date = StringVar()
         # self.bill_no.set(str(random.randint(1000, 9999)))
         self.search_bill = StringVar()
+        self.total_value = StringVar()
+
         
 
         #date
-        self.lblDate = Label(Main_Frame, text="Date", font=("arial", 18, "bold"), bg="#9FA8B2",fg="white", bd=4)
+        self.lblDate = Label(Main_Frame, text="Date", font=("arial", 18, "bold"), bg="white",fg="black", bd=4)
         self.lblDate.place(x=50, y=100)
 
         self.txtDate = ttk.Entry(Main_Frame, textvariable=self.date, font=("arial", 18, "bold"), width=24)
         self.txtDate.place(x=250, y=100)
 
         # Hari Regmi
-        self.lblHari = Label(Main_Frame, text="Hari Regmi", font=("arial", 18, "bold"), bg="#9FA8B2",fg="white", bd=4)
+        self.lblHari = Label(Main_Frame, text="Hari Regmi", font=("arial", 18, "bold"), bg="white",fg="black", bd=4)
         self.lblHari.place(x=50, y=180)
 
         self.txtHari = ttk.Entry(Main_Frame, textvariable=self.hari, font=("arial", 18, "bold"), width=24)
         self.txtHari.place(x=250, y=180)
 
         # Rijan Regmi
-        self.lblRijan = Label(Main_Frame, text="Rijan Regmi", font=("arial", 18, "bold"), bg="#9FA8B2",fg="white", bd=4)
+        self.lblRijan = Label(Main_Frame, text="Rijan Regmi", font=("arial", 18, "bold"), bg="white",fg="black", bd=4)
         self.lblRijan.place(x=50, y=260)
 
         self.txtRijan = ttk.Entry(Main_Frame, textvariable=self.rijan, font=("arial", 18, "bold"), width=24)
         self.txtRijan.place(x=250, y=260)
 
         # Anita Regmi
-        self.lblAnita = Label(Main_Frame, text="Anita Regmi", font=("arial", 18, "bold"), bg="#9FA8B2",fg="white", bd=4)
+        self.lblAnita = Label(Main_Frame, text="Anita Regmi", font=("arial", 18, "bold"), bg="white",fg="black", bd=4)
         self.lblAnita.place(x=50, y=340)
 
         self.txtAnita = ttk.Entry(Main_Frame, textvariable=self.anita, font=("arial", 18, "bold"), width=24)
         self.txtAnita.place(x=250, y=340)
 
         # Rishav Regmi
-        self.lblRishav = Label(Main_Frame, text="Rishav Regmi", font=("arial", 18, "bold"), bg="#9FA8B2",fg="white", bd=4)
+        self.lblRishav = Label(Main_Frame, text="Rishav Regmi", font=("arial", 18, "bold"), bg="white",fg="black", bd=4)
         self.lblRishav.place(x=50, y=420)
 
         self.txtRishav = ttk.Entry(Main_Frame, textvariable=self.rishav, font=("arial", 18, "bold"), width=24)
@@ -771,22 +775,24 @@ class sharedata:
         # button
         self.btnadd = Button(Main_Frame, text="Add", height=1, font=('arial', 15, 'bold'), bg="#4f5c8b", fg="#FFFFFF",
                              width=10, cursor="hand2", command=self.add)
-        self.btnadd.place(x=100, y=600)
+        self.btnadd.place(x=10, y=480)
 
         self.btnsave = Button(Main_Frame, text="Save", height=1, font=('arial', 15, 'bold'), bg="#4f5c8b", fg="#FFFFFF",
                               width=10, cursor="hand2", command=self.save)
-        self.btnsave.place(x=400, y=600)
+        self.btnsave.place(x=150, y=480)
 
         self.btnclear = Button(Main_Frame, text="Clear", command=self.clear, height=1, font=('arial', 15, 'bold'),
                                bg="#4f5c8b", fg="#FFFFFF", width=10, cursor="hand2")
-        self.btnclear.place(x=600, y=600)
+        self.btnclear.place(x=290, y=480)
 
-        self.btnclear = Button(Main_Frame, text="Chart and data", command=self.chart, height=1, font=('arial', 15, 'bold'),
-                               bg="#4f5c8b", fg="#FFFFFF", width=10, cursor="hand2")
-        self.btnclear.place(x=800, y=600)
+        self.btnclear = Button(Main_Frame, text="View Chart", command=self.LineGraph, height=1, font=('arial', 15, 'bold'),
+                               bg="#4f5c8b", fg="#FFFFFF", width=15, cursor="hand2")
+        self.btnclear.place(x=430, y=480)
+        self.fetch_share()
+
 
         # search
-        Search_Frame = Frame(Main_Frame, bd=2, bg="#9FA8B2")
+        Search_Frame = Frame(Main_Frame, bd=2, bg="white")
         Search_Frame.place(x=750, y=40, width=350, height=40)
 
         self.lblBill = Label(Search_Frame, text="Date", font=("arial", 13, "bold"), bg="#4f5c8b", fg="white")
@@ -812,85 +818,23 @@ class sharedata:
         self.textarea.pack(fill=BOTH, expand=1)
         self.display_share()
 
-    def add(self):
-        if self.hari.get() == "" or self.rijan.get() == "" or self.anita.get() == "" or self.rishav.get() == "":
-            messagebox.showerror("Error", "Enter Share Value for all members")
-        elif self.date.get() == "":
-            messagebox.showerror("Error", "Enter Date")
-        else:
-            total_value = float(self.hari.get()) + float(self.rijan.get()) + float(self.anita.get()) + float(self.rishav.get())
-            self.display_share()
-
-            self.textarea.insert(END, f"\n\tHari\t\t{self.hari.get()}\n\tRijan\t\t{self.rijan.get()}\n"
-                                     f"\tAnita\t\t{self.anita.get()}\n\tRishav\t\t{self.rishav.get()}\n"
-                                     f"_______________________________________________"
-                                     f"\n\tTotal\t\t{"%.2f"%total_value}\n"
-                                     f"_______________________________________________\n")
-
-    def save(self):
-        op=messagebox.askyesno("Save Share","Do you want to save the Share?")
-        if op>0:
-            self.bill_data=self.textarea.get(1.0,END)
-            f1=open('share/'+str(self.date.get())+".txt",'w')
-            f1.write(self.bill_data)
-            op=messagebox.showinfo("Saved",f"Date:{self.date.get()} saved successfully")
-            self.forshare()
-            f1.close()
-
-    def find_bill(self):
-        found = "no"
-        for filename in os.listdir("share"):
-            if filename.split('.')[0]==(self.search_bill.get()):
-                with open(os.path.join("share", filename), 'r') as f1:
-                    bill_data = f1.read()
-                    self.textarea.delete(1.0, END)
-                    self.textarea.insert(END, bill_data)
-                found = "yes"
-                break
-        if found == 'no':
-            messagebox.showerror("Error", "Invalid share No.")
-
-    def clear(self):
-        op=messagebox.askyesno("Clear Share","Do you want to Clear all?")
-        if op>0:
-            self.textarea.delete(1.0,END)
-            self.date.set("")
-            self.hari.set("")
-            self.rijan.set("")
-            self.anita.set("")
-            self.rishav.set("")
-            self.search_bill.set("")
-            self.date.set("")
-            self.display_share()
-
-    def display_share(self):
-        self.textarea.delete(1.0,END)
-        self.textarea.insert(END,f"\n Date:{self.date.get()}")
-
-        self.textarea.insert(END,"\n_______________________________________________")
-        self.textarea.insert(END,f"\n\tNames\t\t\tAmount")
-        self.textarea.insert(END,"\n_______________________________________________")
 
 
-    # ==========================================Chart=========================================
+        # =========================================Bottem Frame=========================================
 
 
-    def chart(self):
-        self.LineGraph()
-        self.totalamount = StringVar()
+        bottom_Frame = Frame(Main_Frame, relief=GROOVE, bg="white")
+        bottom_Frame.place(x=0, y=550, width=1186, height=218)
 
-        Chart_Frame = Frame(self.root, relief=GROOVE, bg="white")
-        Chart_Frame.place(x=180, y=550, width=1186, height=218)
-
-        info_Frame = Frame(Chart_Frame, bd=5, relief=GROOVE, bg="#9FA8B2")
+        info_Frame = Frame(bottom_Frame, bd=5, relief=GROOVE, bg="#9FA8B2")
         info_Frame.place(x=200, y=10, width=950, height=200)
 
         #button
-        self.btnupdate = Button(Chart_Frame, text="Update", command=self.update_share, height=1, font=('arial', 15, 'bold'),
+        self.btnupdate = Button(bottom_Frame, text="Update", command=self.update_share, height=1, font=('arial', 15, 'bold'),
                                 bg="#4f5c8b", fg="#FFFFFF", width=10, cursor="hand2")
         self.btnupdate.place(x=30, y=50)
 
-        self.btndelete = Button(Chart_Frame, text="Delete", command=self.delete_share, height=1, font=('arial', 15, 'bold'),
+        self.btndelete = Button(bottom_Frame, text="Delete", command=self.delete_share, height=1, font=('arial', 15, 'bold'),
                                 bg="#4f5c8b", fg="#FFFFFF", width=10, cursor="hand2")
         self.btndelete.place(x=30, y=100)
 
@@ -929,14 +873,13 @@ class sharedata:
         my_cursor = conn.cursor()
         my_cursor.execute(
             "UPDATE share SET date=%s, hari=%s, rijan=%s, anita=%s, rishav=%s, total_amount=%s WHERE date=%s",
-            (self.date.get(), self.hari.get(), self.rijan.get(), self.anita.get(), self.rishav.get(), self.totalamount.get(), self.date.get())
+            (self.date.get(), self.hari.get(), self.rijan.get(), self.anita.get(), self.rishav.get(), self.total_value.get(), self.date.get())
         )
         conn.commit()
         messagebox.showinfo("Updated", "Updated Successfully!")
         my_cursor.close()
         conn.close()
         self.fetch_share()
-        self.LineGraph()
 
     def fetch_share(self):
         conn = mysql.connector.connect(host="localhost", user="root", password="root", database="share_data")
@@ -960,7 +903,7 @@ class sharedata:
         self.rijan.set(row[2])
         self.anita.set(row[3])
         self.rishav.set(row[4])
-        self.totalamount.set(row[5])
+        self.total_value.set(row[5])
 
     def delete_share(self):
         conn = mysql.connector.connect(host="localhost", user="root", password="root", database="share_data")
@@ -971,12 +914,71 @@ class sharedata:
         conn.commit()
         conn.close()
         self.fetch_share()
-        self.LineGraph()
         messagebox.showinfo("Delete", "Deleted successfully")
 
-        
+    def add(self):
+        if self.hari.get() == "" or self.rijan.get() == "" or self.anita.get() == "" or self.rishav.get() == "":
+            messagebox.showerror("Error", "Enter Share Value for all members")
+        elif self.date.get() == "":
+            messagebox.showerror("Error", "Enter Date")
+        else:
+            total_value = float(self.hari.get()) + float(self.rijan.get()) + float(self.anita.get()) + float(self.rishav.get())
+            self.display_share()
 
-        
+            self.textarea.insert(END, f"\n\tHari\t\t\t{self.hari.get()}\n\tRijan\t\t\t{self.rijan.get()}\n"
+                                     f"\tAnita\t\t\t{self.anita.get()}\n\tRishav\t\t\t{self.rishav.get()}\n"
+                                     f"_______________________________________________"
+                                     f"\n\tTotal\t\t\t{"%.2f"%total_value}\n"
+                                     f"_______________________________________________\n")
+
+    def save(self):
+        op=messagebox.askyesno("Save Share","Do you want to save the Share?")
+        if op>0:
+            self.bill_data=self.textarea.get(1.0,END)
+            f1=open('share/'+str(self.date.get())+".txt",'w')
+            f1.write(self.bill_data)
+            op=messagebox.showinfo("Saved",f"Date:{self.date.get()} saved successfully")
+            self.forshare()
+            f1.close()
+            self.fetch_share()
+
+    def find_bill(self):
+        found = "no"
+        for filename in os.listdir("share"):
+            if filename.split('.')[0]==(self.search_bill.get()):
+                with open(os.path.join("share", filename), 'r') as f1:
+                    bill_data = f1.read()
+                    self.textarea.delete(1.0, END)
+                    self.textarea.insert(END, bill_data)
+                found = "yes"
+                break
+        if found == 'no':
+            messagebox.showerror("Error", "Invalid share No.")
+
+    def clear(self):
+        op=messagebox.askyesno("Clear Share","Do you want to Clear all?")
+        if op>0:
+            self.textarea.delete(1.0,END)
+            self.date.set("")
+            self.hari.set("")
+            self.rijan.set("")
+            self.anita.set("")
+            self.rishav.set("")
+            self.search_bill.set("")
+            self.date.set("")
+            self.display_share()
+
+    def display_share(self):
+        self.textarea.delete(1.0,END)
+        self.textarea.insert(END,f"\n Date:{self.date.get()}")
+
+        self.textarea.insert(END,"\n_______________________________________________")
+        self.textarea.insert(END,f"\n\tNames\t\t\tAmount")
+        self.textarea.insert(END,"\n_______________________________________________")
+
+
+    # ==========================================Chart=========================================
+   
 
     def LineGraph(self):
         
@@ -985,7 +987,7 @@ class sharedata:
         self.rijan = DoubleVar()
         self.anita = DoubleVar()
         self.rishav = DoubleVar()
-        self.totalamount = DoubleVar()
+        self.total_value = DoubleVar()
         self.fetch_share()
 
         graph_Frame = Frame(self.root, relief=GROOVE, bg="white")
@@ -1006,6 +1008,10 @@ class sharedata:
 
         dataframe.plot(kind="line", x="date", y="total_amount", legend=True, ax=figure_plot, color='r', marker='o', fontsize=10)
         figure_plot.set_title('Date vs. Total Amount')
+
+        #Button
+        self.btnback = Button(graph_Frame, text="<", command=self.share, height=50, font=('arial', 15, 'bold'), bg="#4f5c8b", fg="#FFFFFF", width=120, cursor="hand2")
+        self.btnback.place(x=10, y=10, width=30, height=24)
 
 
 if __name__ == "__main__":
