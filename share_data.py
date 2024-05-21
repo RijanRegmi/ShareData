@@ -3,8 +3,12 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 from tkinter import messagebox
 import ctypes
-import os
+import random,os
 import mysql.connector 
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from sqlalchemy import create_engine
 # import login as firtpage
 
 myappid = 'mycompany.myproduct.subproduct.version' # arbitrary string
@@ -14,26 +18,6 @@ ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
 
 class sharedata:
-    # def take(self):
-    #     self.login()
-
-    #     sql = """SELECT * FROM login WHERE contact=%s AND password=%s"""
-    #     values = (self.username.get(), self.pword())  # Assuming self.password() is a method returning the password
-    #     result = None
-    #     conn = None
-        
-    #     try:
-    #         conn = mysql.connector.connect(host="localhost", user="root", password="root", database="login")
-    #         cursor = conn.cursor()
-    #         cursor.execute(sql, values)
-    #         result = cursor.fetchone()
-    #     except Exception as e:
-    #         print("Error:", e)
-    #     finally:
-    #         if conn:
-    #             conn.close()
-        
-    #     return result
 
     def take(self):
         if self.txtusername.get()=="rijanregmi" or self.txtpword=="rjnrgi":
@@ -51,6 +35,7 @@ class sharedata:
         root.iconphoto(False, img)
         self.products_added = []
         self.fp()
+        self.info_table = None
 
 
     def insert(self):
@@ -75,6 +60,27 @@ class sharedata:
             messagebox.showinfo("Insert Status", "Account created")
             con.close()
 
+    
+    def check_login(self):
+        contact = self.txtusername.get()
+        password = self.txtpword.get()
+
+        # Connect to MySQL database
+        conn = mysql.connector.connect(host="localhost", user="root", password="root", database="login")
+        cursor = conn.cursor()
+
+        # Execute SQL query to check if username and password match
+        query = "SELECT * FROM sid WHERE contact=%s AND password=%s"
+        cursor.execute(query, (contact, password))
+        account = cursor.fetchone()
+
+        if account:
+            self.window()
+            messagebox.showinfo("Login","Login successful")
+            
+        else:
+            messagebox.showinfo("Login","Login Failed")
+            self.login()
 
     def data(self):
         date = self.txtdate.get()
@@ -83,6 +89,7 @@ class sharedata:
         status = self.Combo_status.get()
         qty = self.txtqty.get()
         amount = self.txtamount.get()
+        self.chart()
         
 
         if date == "" or symbol == "" or name == "" or status == "" or qty == "" or amount == "" :
@@ -96,6 +103,7 @@ class sharedata:
 
             messagebox.showinfo("Insert Status", "Date stored")
             con.close()
+            self.fetch_data()
 
 
     def forshare(self):
@@ -104,20 +112,35 @@ class sharedata:
         rijan = self.txtRijan.get()
         anita = self.txtAnita.get()
         rishav = self.txtRishav.get()
-        total_value = hari+rijan+anita+rishav
-        
 
-        if date == "" or hari == "" or rijan == "" or anita == "" or rishav == "" :
+        if date == "" or hari == "" or rijan == "" or anita == "" or rishav == "":
             messagebox.showinfo("Insert Status", "All Fields are required")
+            return
 
-        else:
+        try:
+            hari = float(hari)
+            rijan = float(rijan)
+            anita = float(anita)
+            rishav = float(rishav)
+            total_value = hari + rijan + anita + rishav
+        except ValueError:
+            messagebox.showinfo("Insert Status", "Please enter valid numbers for Hari, Rijan, Anita, and Rishav")
+            return
+
+        try:
             con = mysql.connector.connect(host="localhost", user="root", password="root", database="share_data")
             cursor = con.cursor()
-            cursor.execute("insert into share values('" + date + "','" + hari + "','" + rijan + "','" + anita + "','" + rishav + "','" + total_value + "')")
-            cursor.execute("commit")
+            query = "INSERT INTO share (date, Hari, Rijan, Anita, Rishav, total_amount) VALUES (%s, %s, %s, %s, %s, %s)"
+            values = (date, hari, rijan, anita, rishav, total_value)
+            cursor.execute(query, values)
+            con.commit()
 
-            messagebox.showinfo("Insert Status", "Date stored")
+            messagebox.showinfo("Insert Status", "Data stored")
+        except mysql.connector.Error as err:
+            messagebox.showinfo("Insert Status", f"Error: {err}")
+        finally:
             con.close()
+
 
 
     
@@ -212,7 +235,7 @@ class sharedata:
 
 
         #username
-        self.lblusername = Label(page_Frame, text="username",   font=("arial", 18, "bold"), bg="#9FA8B2",fg="#FFFFFF", bd=4)
+        self.lblusername = Label(page_Frame, text="Contact",   font=("arial", 18, "bold"), bg="#9FA8B2",fg="#FFFFFF", bd=4)
         self.lblusername.place(x=105, y=120)
 
         self.txtusername = ttk.Entry(page_Frame, font=("arial", 12, "bold"), width=24)
@@ -228,7 +251,7 @@ class sharedata:
 
 
         #button
-        self.btnlogin = Button(page_Frame, text="login", command=self.take, height=50, font=('arial', 15, 'bold'), bg="#4f5c8b", fg="#FFFFFF", width=120, cursor="hand2")
+        self.btnlogin = Button(page_Frame, text="login", command=self.check_login, height=50, font=('arial', 15, 'bold'), bg="#4f5c8b", fg="#FFFFFF", width=120, cursor="hand2")
         self.btnlogin.place(x=100, y=350, width=130, height=44)
 
 
@@ -237,7 +260,7 @@ class sharedata:
 
     def signup(self):
         
-
+        
         
         signup_Frame = Frame(self.root, relief=GROOVE, bg="#9FA8B2")
         signup_Frame.place(x=0, y=0, width=1366, height=768)
@@ -272,7 +295,7 @@ class sharedata:
         self.lbfirstlname = Label(user_Frame, text="First Name", font=("arial", 18, "bold"), bg="#9FA8B2",fg="#FFFFFF", bd=4)
         self.lbfirstlname.place(x=170, y=120)
 
-        self.txtfirstname = ttk.Entry(user_Frame, font=("arial", 16, "bold"), width=24)
+        self.txtfirstname = ttk.Entry(user_Frame, font=("arial", 16, "bold"), width=26)
         self.txtfirstname.place(x=95, y=160)
 
 
@@ -281,7 +304,7 @@ class sharedata:
         self.lblastlname = Label(user_Frame, text="Last Name", font=("arial", 18, "bold"), bg="#9FA8B2",fg="#FFFFFF", bd=4)
         self.lblastlname.place(x=680, y=120)
 
-        self.txtlastname = ttk.Entry(user_Frame, font=("arial", 16, "bold"), width=24)
+        self.txtlastname = ttk.Entry(user_Frame, font=("arial", 16, "bold"), width=26)
         self.txtlastname.place(x=595, y=160)
 
 
@@ -289,14 +312,14 @@ class sharedata:
         self.lblcontact = Label(user_Frame, text="Contact", font=("arial", 18, "bold"), bg="#9FA8B2",fg="#FFFFFF", bd=4)
         self.lblcontact.place(x=190, y=220)
 
-        self.txlcontact = ttk.Entry(user_Frame, font=("arial", 16, "bold"), width=24)
+        self.txlcontact = ttk.Entry(user_Frame, font=("arial", 16, "bold"), width=26)
         self.txlcontact.place(x=95, y=260)
 
         # email
         self.lblemail = Label(user_Frame, text="email", font=("arial", 18, "bold"), bg="#9FA8B2",fg="#FFFFFF", bd=4)
         self.lblemail.place(x=700, y=220)
 
-        self.txlemail = ttk.Entry(user_Frame, font=("arial", 16, "bold"), width=24)
+        self.txlemail = ttk.Entry(user_Frame, font=("arial", 16, "bold"), width=26)
         self.txlemail.place(x=595, y=260)
 
 
@@ -304,7 +327,7 @@ class sharedata:
         self.lblpassword = Label(user_Frame, text="password", font=("arial", 18, "bold"), bg="#9FA8B2",fg="#FFFFFF", bd=4)
         self.lblpassword.place(x=180, y=320)
 
-        self.txtpassword = ttk.Entry(user_Frame, font=("arial", 16, "bold"), width=24)
+        self.txtpassword = ttk.Entry(user_Frame,show="*", font=("arial", 16, "bold"), width=26)
         self.txtpassword.place(x=95, y=360)
 
         # button_mode=True
@@ -332,7 +355,7 @@ class sharedata:
         self.lblconfrimpassword = Label(user_Frame, text="confrim password", font=("arial", 18, "bold"), bg="#9FA8B2",fg="#FFFFFF", bd=4)
         self.lblconfrimpassword.place(x=630, y=320)
 
-        self.txtconfrimpassword = ttk.Entry(user_Frame, font=("arial", 16, "bold"), width=24)
+        self.txtconfrimpassword = ttk.Entry(user_Frame,show="*", font=("arial", 16, "bold"), width=26)
         self.txtconfrimpassword.place(x=595, y=360)
 
 
@@ -369,12 +392,13 @@ class sharedata:
         self.btnlogout = Button(left_Frame, text="Logout", command=self.fp, height=50, font=('arial', 15, 'bold'), bg="#9FA8B2", fg="#FFFFFF", width=120, cursor="hand2")
         self.btnlogout.place(x=20, y=220, width=130, height=44)
         self.share()
-        
+
+
 # =========================================================================share_data=========================================================================
 
     def sharedata(self):
 
-    
+        
 
         
         # ====================Variable=====================
@@ -385,6 +409,7 @@ class sharedata:
         self.amount = IntVar()
         self.search_data = StringVar()
         self.status_data=StringVar()
+
 
 
 
@@ -403,67 +428,77 @@ class sharedata:
 
         #date
         self.lbldate = Label(share_Frame, text="date", font=("arial", 12, "bold"), bg="#9FA8B2",fg="#FFFFFF", bd=4)
-        self.lbldate.place(x=55, y=150)
+        self.lbldate.place(x=55, y=100)
 
         self.txtdate = ttk.Entry(share_Frame, textvariable=self.date_data, font=("arial", 12, "bold"), width=10)
-        self.txtdate.place(x=30, y=200)
+        self.txtdate.place(x=30, y=150)
 
         #symbol
         self.lblsymbol = Label(share_Frame, text="Symbol", font=("arial", 12, "bold"), bg="#9FA8B2",fg="#FFFFFF", bd=4)
-        self.lblsymbol.place(x=170, y=150)
+        self.lblsymbol.place(x=170, y=100)
 
         self.txtsymbol = ttk.Entry(share_Frame, textvariable=self.symbol, font=("arial", 12, "bold"), width=12)
-        self.txtsymbol.place(x=150, y=200)
+        self.txtsymbol.place(x=150, y=150)
 
         #firstname
         self.lbls_name = Label(share_Frame, text="Name", font=("arial", 12, "bold"), bg="#9FA8B2",fg="#FFFFFF", bd=4)
-        self.lbls_name.place(x=320, y=150)
+        self.lbls_name.place(x=320, y=100)
 
         self.txts_name = ttk.Entry(share_Frame, textvariable=self.name, font=("arial", 12, "bold"), width=18)
-        self.txts_name.place(x=290, y=200)
+        self.txts_name.place(x=290, y=150)
 
         #status
         self.lblstatus = Label(share_Frame, text="Status", font=("arial", 12, "bold"), bg="#9FA8B2",fg="#FFFFFF", bd=4)
-        self.lblstatus.place(x=490, y=150)
+        self.lblstatus.place(x=490, y=100)
 
         self.Combo_status=ttk.Combobox(share_Frame, textvariable=self.status_data, value=self.status, font = ("arial",12,"bold"),width=8,state="readonly")
         # self.Combo_status.current(0)
-        self.Combo_status.place(x=480, y=200)
+        self.Combo_status.place(x=480, y=150)
 
         #qty
         self.lblqty = Label(share_Frame, text="QTY", font=("arial", 12, "bold"), bg="#9FA8B2",fg="#FFFFFF", bd=4)
-        self.lblqty.place(x=625, y=150)
+        self.lblqty.place(x=625, y=100)
 
         self.txtqty = ttk.Entry(share_Frame, textvariable=self.qty, font=("arial", 12, "bold"), width=10)
-        self.txtqty.place(x=600, y=200)
+        self.txtqty.place(x=600, y=150)
 
 
         #amount
         self.lblamount = Label(share_Frame, text="Amount", font=("arial", 12, "bold"), bg="#9FA8B2",fg="#FFFFFF", bd=4)
-        self.lblamount.place(x=740, y=150)
+        self.lblamount.place(x=740, y=100)
 
         self.txtamount = ttk.Entry(share_Frame, textvariable=self.amount, font=("arial", 12, "bold"), width=12)
-        self.txtamount.place(x=725, y=200)
+        self.txtamount.place(x=725, y=150)
 
 
         #button
         self.btnadddata = Button(share_Frame, text="Add", height=1, font=('arial', 15, 'bold'), bg="#4f5c8b", fg="#FFFFFF",
                              width=10, cursor="hand2", command=self.adddata)
-        self.btnadddata.place(x=30, y=400)
+        self.btnadddata.place(x=30, y=300)
 
         self.btnsavedata = Button(share_Frame, text="Save", height=1, font=('arial', 15, 'bold'), bg="#4f5c8b", fg="#FFFFFF",
                               width=10, cursor="hand2", command=self.savedata)
-        self.btnsavedata.place(x=30, y=500)
+        self.btnsavedata.place(x=30, y=350)
 
         self.btncleardata = Button(share_Frame, text="Clear", command=self.cleardata, height=1, font=('arial', 15, 'bold'),
                                bg="#4f5c8b", fg="#FFFFFF", width=10, cursor="hand2")
-        self.btncleardata.place(x=30, y=600)
+        self.btncleardata.place(x=30, y=400)
+
+        self.btnupdate = Button(share_Frame, text="Update", command=self.update,  height=1, font=('arial', 15, 'bold'),
+                               bg="#4f5c8b", fg="#FFFFFF", width=10, cursor="hand2")
+        self.btnupdate.place(x=30, y=450)
+
+        self.btndelete = Button(share_Frame, text="Delete", command=self.delete,  height=1, font=('arial', 15, 'bold'),
+                               bg="#4f5c8b", fg="#FFFFFF", width=10, cursor="hand2")
+        self.btndelete.place(x=30, y=500)
 
 
 
         # # search
         Search_Frame = Frame(share_Frame, bd=2, bg="#9FA8B2")
-        Search_Frame.place(x=350, y=280, width=750, height=40)
+        Search_Frame.place(x=350, y=200, width=750, height=40)
+
+        
 
         self.lbldata = Label(Search_Frame, text="Date", font=("arial", 13, "bold"), bg="#4f5c8b", fg="#FFFFFF")
         self.lbldata.grid(row=0, column=0, sticky=W, padx=1)
@@ -477,9 +512,9 @@ class sharedata:
 
 
 
-        # dataframe Bill aria
+        # dataframe info aria
         dataLabelFrame = LabelFrame(share_Frame, text="Info Aria", font=("times new romen", 12, "bold"), bg="white",fg="#b90508")
-        dataLabelFrame.place(x=200, y=320, width=950, height=390)
+        dataLabelFrame.place(x=200, y=230, width=950, height=290)
 
         scroll_y = Scrollbar(dataLabelFrame, orient=VERTICAL)
         self.texta = Text(dataLabelFrame, yscrollcommand=scroll_y.set, font=("times new romen", 12, "bold"), bg="white", fg="#b90508")
@@ -487,6 +522,107 @@ class sharedata:
         scroll_y.config(command=self.texta.yview)
         self.texta.pack(fill=BOTH, expand=1)
         self.shareData()
+
+        self.fetch_data()
+
+
+
+    # ===================================================info====================================================================
+
+
+# date == "" or symbol == "" or name == "" or status == "" or qty == "" or amount == ""
+
+        info_Frame = Frame(share_Frame, bd=5, relief=GROOVE, bg="#9FA8B2")
+        info_Frame.place(x=200, y=550, width=950, height=200)
+
+        scroll_x = ttk.Scrollbar(info_Frame, orient=HORIZONTAL)
+        scroll_y = ttk.Scrollbar(info_Frame, orient=VERTICAL)
+        self.info_table = ttk.Treeview(info_Frame, columns=("date", "symbol", "name", "status", "qty", "amount"), xscrollcommand=scroll_x.set, yscrollcommand=scroll_y.set)
+
+        scroll_x.pack(side=BOTTOM, fill=X)
+        scroll_y.pack(side=RIGHT, fill=Y)
+
+        self.info_table.heading("date", text="Date")
+        self.info_table.heading("symbol", text="Symbol")
+        self.info_table.heading("name", text="Name")
+        self.info_table.heading("status", text="Status")
+        self.info_table.heading("qty", text="QTY")
+        self.info_table.heading("amount", text="Amount")
+
+        self.info_table["show"] = "headings"
+
+        self.info_table.pack(fill=BOTH, expand=1)
+
+        self.info_table.column("date", width=30)
+        self.info_table.column("symbol", width=30)
+        self.info_table.column("name", width=30)
+        self.info_table.column("status", width=30)
+        self.info_table.column("qty", width=30)
+        self.info_table.column("amount", width=30)
+
+        self.info_table.pack(fill=BOTH, expand=1)
+        self.info_table.bind("<ButtonRelease-1>",self.get_cursor)
+
+        self.fetch_data()
+        
+        
+
+
+    def update(self):
+        conn = mysql.connector.connect(host="localhost", user="root", password="root", database="share_data")
+        my_cursor = conn.cursor()
+        my_cursor.execute(
+                "UPDATE s_data SET date=%s, name=%s, status=%s, qty=%s, amount=%s WHERE symbol=%s",
+                (self.date_data.get(), self.name.get(), self.status_data.get(), self.qty.get(), self.amount.get(), self.symbol.get())
+            )
+        conn.commit()
+        messagebox.showinfo("Updated","Updated Succesfully!")
+        my_cursor.close()
+        conn.close()
+        self.fetch_data()
+
+
+
+
+
+    def fetch_data(self):
+        conn = mysql.connector.connect(host="localhost", user="root", password="root", database="share_data")
+        my_cursor = conn.cursor()
+        my_cursor.execute("SELECT * FROM s_data")
+        rows = my_cursor.fetchall()
+        if len(rows) != 0:
+            if self.info_table is not None:
+                self.info_table.delete(*self.info_table.get_children())
+                for i in rows:
+                    self.info_table.insert("", END, value=i)
+                conn.commit()
+        conn.close()  
+
+
+    def get_cursor(self,event=""):
+        cursor_row=self.info_table.focus()
+        content=self.info_table.item(cursor_row)
+        row=content["values"]
+        self.date_data.set(row[0])
+        self.symbol.set(row[1])
+        self.name.set(row[2])
+        self.status_data.set(row[3])
+        self.qty.set(row[4])
+        self.amount.set(row[5])
+
+    def delete(self):
+        conn = mysql.connector.connect(host="localhost", user="root", password="root", database="share_data")
+        my_cursor = conn.cursor()
+        query="delete from s_data where symbol=%s"
+        value=(self.symbol.get(),)
+        my_cursor.execute(query,value)
+        conn.commit()
+        conn.close()
+        self.fetch_data()
+        messagebox.showinfo("Delete","Deleted successfully")
+               
+
+
 
         
 
@@ -499,6 +635,9 @@ class sharedata:
             self.totalamount = float(self.qty.get()) * float(self.amount.get())
             self.texta.insert(END,f"\n{self.date_data.get()}\t\t{self.symbol.get()}\t\t{self.name.get()}\t\t{self.status_data.get()}\t\t{self.qty.get()}\t\t{self.amount.get()}\t\t{self.totalamount}")
             self.data()
+
+
+            
 
     # def date(self):
     #     self.texta.insert(END,f"\n Date:{self.date_data.get()}")
@@ -553,9 +692,25 @@ class sharedata:
 
 
 
+    
+
+
+
+
         # ====================================================================================SHARE===========================================================================================
 
     def share(self):
+
+        self.date = StringVar()
+        self.hari = DoubleVar()
+        self.rijan = DoubleVar()
+        self.anita = DoubleVar()
+        self.rishav = DoubleVar()
+        self.totalamount = DoubleVar()
+        self.root = root
+        self.chart()
+
+        self.fetch_data()
         Main_Frame = Frame(self.root, bd=5, relief=GROOVE, bg="#9FA8B2")
         Main_Frame.place(x=180, y=0, width=1186, height=768)
 
@@ -624,7 +779,11 @@ class sharedata:
 
         self.btnclear = Button(Main_Frame, text="Clear", command=self.clear, height=1, font=('arial', 15, 'bold'),
                                bg="#4f5c8b", fg="#FFFFFF", width=10, cursor="hand2")
-        self.btnclear.place(x=700, y=600)
+        self.btnclear.place(x=600, y=600)
+
+        self.btnclear = Button(Main_Frame, text="Chart and data", command=self.chart, height=1, font=('arial', 15, 'bold'),
+                               bg="#4f5c8b", fg="#FFFFFF", width=10, cursor="hand2")
+        self.btnclear.place(x=800, y=600)
 
         # search
         Search_Frame = Frame(Main_Frame, bd=2, bg="#9FA8B2")
@@ -713,10 +872,146 @@ class sharedata:
         self.textarea.insert(END,"\n_______________________________________________")
 
 
+    # ==========================================Chart=========================================
+
+
+    def chart(self):
+        self.LineGraph()
+        self.totalamount = StringVar()
+
+        Chart_Frame = Frame(self.root, relief=GROOVE, bg="white")
+        Chart_Frame.place(x=180, y=550, width=1186, height=218)
+
+        info_Frame = Frame(Chart_Frame, bd=5, relief=GROOVE, bg="#9FA8B2")
+        info_Frame.place(x=200, y=10, width=950, height=200)
+
+        #button
+        self.btnupdate = Button(Chart_Frame, text="Update", command=self.update_share, height=1, font=('arial', 15, 'bold'),
+                                bg="#4f5c8b", fg="#FFFFFF", width=10, cursor="hand2")
+        self.btnupdate.place(x=30, y=50)
+
+        self.btndelete = Button(Chart_Frame, text="Delete", command=self.delete_share, height=1, font=('arial', 15, 'bold'),
+                                bg="#4f5c8b", fg="#FFFFFF", width=10, cursor="hand2")
+        self.btndelete.place(x=30, y=100)
+
+        scroll_x = ttk.Scrollbar(info_Frame, orient=HORIZONTAL)
+        scroll_y = ttk.Scrollbar(info_Frame, orient=VERTICAL)
+        self.info_table = ttk.Treeview(info_Frame, columns=("date", "hari", "rijan", "anita", "rishav", "total_value"), xscrollcommand=scroll_x.set, yscrollcommand=scroll_y.set)
+
+        scroll_x.pack(side=BOTTOM, fill=X)
+        scroll_y.pack(side=RIGHT, fill=Y)
+
+        self.info_table.heading("date", text="Date")
+        self.info_table.heading("hari", text="Hari")
+        self.info_table.heading("rijan", text="Rijan")
+        self.info_table.heading("anita", text="Anita")
+        self.info_table.heading("rishav", text="Rishav")
+        self.info_table.heading("total_value", text="Total")
+
+        self.info_table["show"] = "headings"
+
+        self.info_table.pack(fill=BOTH, expand=1)
+
+        self.info_table.column("date", width=30)
+        self.info_table.column("hari", width=30)
+        self.info_table.column("rijan", width=30)
+        self.info_table.column("anita", width=30)
+        self.info_table.column("rishav", width=30)
+        self.info_table.column("total_value", width=30)
+
+        self.info_table.pack(fill=BOTH, expand=1)
+        self.info_table.bind("<ButtonRelease-1>", self.get_cursor)
+
+        self.fetch_share()
+
+    def update_share(self):
+        conn = mysql.connector.connect(host="localhost", user="root", password="root", database="share_data")
+        my_cursor = conn.cursor()
+        my_cursor.execute(
+            "UPDATE share SET date=%s, hari=%s, rijan=%s, anita=%s, rishav=%s, total_amount=%s WHERE date=%s",
+            (self.date.get(), self.hari.get(), self.rijan.get(), self.anita.get(), self.rishav.get(), self.totalamount.get(), self.date.get())
+        )
+        conn.commit()
+        messagebox.showinfo("Updated", "Updated Successfully!")
+        my_cursor.close()
+        conn.close()
+        self.fetch_share()
+        self.LineGraph()
+
+    def fetch_share(self):
+        conn = mysql.connector.connect(host="localhost", user="root", password="root", database="share_data")
+        my_cursor = conn.cursor()
+        my_cursor.execute("SELECT * FROM share")
+        rows = my_cursor.fetchall()
+        if len(rows) != 0:
+            if self.info_table is not None:
+                self.info_table.delete(*self.info_table.get_children())
+                for i in rows:
+                    self.info_table.insert("", END, value=i)
+                conn.commit()
+        conn.close()
+
+    def get_cursor(self, event=""):
+        cursor_row = self.info_table.focus()
+        content = self.info_table.item(cursor_row)
+        row = content["values"]
+        self.date.set(row[0])
+        self.hari.set(row[1])
+        self.rijan.set(row[2])
+        self.anita.set(row[3])
+        self.rishav.set(row[4])
+        self.totalamount.set(row[5])
+
+    def delete_share(self):
+        conn = mysql.connector.connect(host="localhost", user="root", password="root", database="share_data")
+        my_cursor = conn.cursor()
+        query = "DELETE FROM share WHERE date=%s"
+        value = (self.date.get(),)
+        my_cursor.execute(query, value)
+        conn.commit()
+        conn.close()
+        self.fetch_share()
+        self.LineGraph()
+        messagebox.showinfo("Delete", "Deleted successfully")
+
+        
+
+        
+
+    def LineGraph(self):
+        
+        self.date = StringVar()
+        self.hari = DoubleVar()
+        self.rijan = DoubleVar()
+        self.anita = DoubleVar()
+        self.rishav = DoubleVar()
+        self.totalamount = DoubleVar()
+        self.fetch_share()
+
+        graph_Frame = Frame(self.root, relief=GROOVE, bg="white")
+        graph_Frame.place(x=180, y=0, width=1186, height=556)
+
+        # Connect to the database using SQLAlchemy
+        engine = create_engine('mysql+mysqlconnector://root:root@localhost/share_data')
+        query = "SELECT date, total_amount FROM share"
+        dataframe = pd.read_sql_query(query, engine)
+
+        figure = plt.Figure(figsize=(13, 7), dpi=100)
+        figure_plot = figure.add_subplot(1, 1, 1)
+        figure_plot.set_xlabel("Date")
+        figure_plot.set_ylabel("Total Amount")
+
+        line_graph = FigureCanvasTkAgg(figure, graph_Frame)
+        line_graph.get_tk_widget().pack(side=TOP, fill=BOTH, expand=True)
+
+        dataframe.plot(kind="line", x="date", y="total_amount", legend=True, ax=figure_plot, color='r', marker='o', fontsize=10)
+        figure_plot.set_title('Date vs. Total Amount')
 
 
 if __name__ == "__main__":
     root = Tk()
     obj = sharedata(root)
     obj = sharedata(root)
+    obj.fetch_data()
+    obj.fetch_share()
     root.mainloop()
