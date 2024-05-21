@@ -230,8 +230,8 @@ class sharedata:
         lbl_signupimg.place(x=120, y=10, width=80, height=80)
 
 
-        self.btnback = Button(login_Frame, text="<", command=self.fp, height=50, font=('arial', 15, 'bold'), bg="#4f5c8b", fg="#FFFFFF", width=120, cursor="hand2")
-        self.btnback.place(x=10, y=10, width=30, height=24)
+        self.btnback = Button(login_Frame, text="⬅", command=self.fp, height=50, font=('arial', 15, 'bold'), bg="#4f5c8b", fg="#FFFFFF", width=120, cursor="hand2")
+        self.btnback.place(x=10, y=10, width=20, height=20)
 
 
         #username
@@ -286,8 +286,8 @@ class sharedata:
         lbl_img2 = Label(user_Frame, image=self.photoimg2, bg="#9FA8B2")
         lbl_img2.place(x=450, y=10, width=80, height=80)
 
-        self.btnback = Button(signup_Frame, text="<", command=self.fp, height=50, font=('arial', 15, 'bold'), bg="#4f5c8b", fg="#FFFFFF", width=120, cursor="hand2")
-        self.btnback.place(x=10, y=10, width=30, height=24)
+        self.btnback = Button(signup_Frame, text="⬅", command=self.fp, height=50, font=('arial', 15, 'bold'), bg="#4f5c8b", fg="#FFFFFF", width=120, cursor="hand2")
+        self.btnback.place(x=10, y=10, width=20, height=20)
 
         
 
@@ -1010,8 +1010,8 @@ class sharedata:
         figure_plot.set_title('Date vs. Total Amount')
 
         #Button
-        self.btnback = Button(graph_Frame, text="<", command=self.share, height=50, font=('arial', 15, 'bold'), bg="#4f5c8b", fg="#FFFFFF", width=120, cursor="hand2")
-        self.btnback.place(x=10, y=10, width=30, height=24)
+        self.btnback = Button(graph_Frame, text="⬅", command=self.share, height=50, font=('arial', 15, 'bold'), bg="#4f5c8b", fg="white", width=120, cursor="hand2")
+        self.btnback.place(x=10, y=10, width=20, height=20)
 
 
 if __name__ == "__main__":
