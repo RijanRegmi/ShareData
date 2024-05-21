@@ -36,6 +36,7 @@ class sharedata:
         self.products_added = []
         self.fp()
         self.info_table = None
+        self.share_info_table = None
 
 
     def insert(self):
@@ -826,8 +827,8 @@ class sharedata:
         bottom_Frame = Frame(Main_Frame, relief=GROOVE, bg="white")
         bottom_Frame.place(x=0, y=550, width=1186, height=218)
 
-        info_Frame = Frame(bottom_Frame, bd=5, relief=GROOVE, bg="#9FA8B2")
-        info_Frame.place(x=200, y=10, width=950, height=200)
+        share_info_Frame = Frame(bottom_Frame, bd=5, relief=GROOVE, bg="#9FA8B2")
+        share_info_Frame.place(x=200, y=10, width=950, height=200)
 
         #button
         self.btnupdate = Button(bottom_Frame, text="Update", command=self.update_share, height=1, font=('arial', 15, 'bold'),
@@ -838,33 +839,33 @@ class sharedata:
                                 bg="#4f5c8b", fg="#FFFFFF", width=10, cursor="hand2")
         self.btndelete.place(x=30, y=100)
 
-        scroll_x = ttk.Scrollbar(info_Frame, orient=HORIZONTAL)
-        scroll_y = ttk.Scrollbar(info_Frame, orient=VERTICAL)
-        self.info_table = ttk.Treeview(info_Frame, columns=("date", "hari", "rijan", "anita", "rishav", "total_value"), xscrollcommand=scroll_x.set, yscrollcommand=scroll_y.set)
+        scroll_x = ttk.Scrollbar(share_info_Frame, orient=HORIZONTAL)
+        scroll_y = ttk.Scrollbar(share_info_Frame, orient=VERTICAL)
+        self.share_info_table = ttk.Treeview(share_info_Frame, columns=("date", "hari", "rijan", "anita", "rishav", "total_value"), xscrollcommand=scroll_x.set, yscrollcommand=scroll_y.set)
 
         scroll_x.pack(side=BOTTOM, fill=X)
         scroll_y.pack(side=RIGHT, fill=Y)
 
-        self.info_table.heading("date", text="Date")
-        self.info_table.heading("hari", text="Hari")
-        self.info_table.heading("rijan", text="Rijan")
-        self.info_table.heading("anita", text="Anita")
-        self.info_table.heading("rishav", text="Rishav")
-        self.info_table.heading("total_value", text="Total")
+        self.share_info_table.heading("date", text="Date")
+        self.share_info_table.heading("hari", text="Hari")
+        self.share_info_table.heading("rijan", text="Rijan")
+        self.share_info_table.heading("anita", text="Anita")
+        self.share_info_table.heading("rishav", text="Rishav")
+        self.share_info_table.heading("total_value", text="Total")
 
-        self.info_table["show"] = "headings"
+        self.share_info_table["show"] = "headings"
 
-        self.info_table.pack(fill=BOTH, expand=1)
+        self.share_info_table.pack(fill=BOTH, expand=1)
 
-        self.info_table.column("date", width=30)
-        self.info_table.column("hari", width=30)
-        self.info_table.column("rijan", width=30)
-        self.info_table.column("anita", width=30)
-        self.info_table.column("rishav", width=30)
-        self.info_table.column("total_value", width=30)
+        self.share_info_table.column("date", width=30)
+        self.share_info_table.column("hari", width=30)
+        self.share_info_table.column("rijan", width=30)
+        self.share_info_table.column("anita", width=30)
+        self.share_info_table.column("rishav", width=30)
+        self.share_info_table.column("total_value", width=30)
 
-        self.info_table.pack(fill=BOTH, expand=1)
-        self.info_table.bind("<ButtonRelease-1>", self.get_cursor)
+        self.share_info_table.pack(fill=BOTH, expand=1)
+        self.share_info_table.bind("<ButtonRelease-1>", self.get_cursor1)
 
         self.fetch_share()
 
@@ -887,16 +888,16 @@ class sharedata:
         my_cursor.execute("SELECT * FROM share")
         rows = my_cursor.fetchall()
         if len(rows) != 0:
-            if self.info_table is not None:
-                self.info_table.delete(*self.info_table.get_children())
+            if self.share_info_table is not None:
+                self.share_info_table.delete(*self.share_info_table.get_children())
                 for i in rows:
-                    self.info_table.insert("", END, value=i)
+                    self.share_info_table.insert("", END, value=i)
                 conn.commit()
         conn.close()
 
-    def get_cursor(self, event=""):
-        cursor_row = self.info_table.focus()
-        content = self.info_table.item(cursor_row)
+    def get_cursor1(self, event=""):
+        cursor_row = self.share_info_table.focus()
+        content = self.share_info_table.item(cursor_row)
         row = content["values"]
         self.date.set(row[0])
         self.hari.set(row[1])
