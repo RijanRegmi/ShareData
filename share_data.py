@@ -18,13 +18,6 @@ ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
 
 class sharedata:
-
-    def take(self):
-        if self.txtusername.get()=="rijanregmi" or self.txtpword=="rjnrgi":
-            self.window()
-        else:
-            
-            messagebox.showerror("Login", "Invalid username or password")
     
     def __init__(self, root):
         self.root = root
@@ -77,11 +70,11 @@ class sharedata:
 
         if account:
             self.window()
-            messagebox.showinfo("Login","Login successful")
             
         else:
             messagebox.showinfo("Login","Login Failed")
             self.login()
+
 
     def data(self):
         date = self.txtdate.get()
@@ -389,10 +382,22 @@ class sharedata:
 
         self.btndata = Button(left_Frame, text="Data", command=self.sharedata, height=50, font=('arial', 15, 'bold'), bg="#9FA8B2", fg="#FFFFFF", width=120, cursor="hand2")
         self.btndata.place(x=20, y=150, width=130, height=44)
-
-        self.btnlogout = Button(left_Frame, text="Logout", command=self.fp, height=50, font=('arial', 15, 'bold'), bg="#9FA8B2", fg="#FFFFFF", width=120, cursor="hand2")
+    
+        self.btnlogout = Button(left_Frame, text="Logout", command=self.logout, height=50, font=('arial', 15, 'bold'), bg="#9FA8B2", fg="#FFFFFF", width=120, cursor="hand2")
         self.btnlogout.place(x=20, y=220, width=130, height=44)
         self.share()
+
+    def logout(self):
+        if self.btnlogout:
+            result = messagebox.askokcancel("Logout", "Are you sure you want to logout?")
+            if result:
+                self.fp()
+            else:
+                messagebox.showinfo("Cancelled", "Logout was cancelled.")
+                
+            
+            
+        
 
 
 
